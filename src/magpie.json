@@ -1,0 +1,11 @@
+{
+    "Author": "lord2800",
+    "Name": "Magpie",
+    "Punchline": "A gathering plugin",
+    "Description": "It gathers your shinies",
+    "ApplicableVersion": "any",
+    "CanUnloadAsync": true,
+    "Tags": [
+        "gathering"
+    ]
+}

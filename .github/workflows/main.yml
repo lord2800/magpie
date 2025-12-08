@@ -1,0 +1,66 @@
+name: Build pre-release
+
+on: [push]
+
+env:
+    LOGGER: console;verbosity=normal
+    BUILD_CONFIG: Debug
+    GH_TOKEN: ${{ github.token }}
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        strategy:
+            matrix:
+                dotnet-version:
+                    - '9.x'
+                dalamud-version:
+                    - ''
+                    - stg
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v6
+              with:
+                clean: true
+                fetch-depth: 1
+
+            - name: Setup dotnet ${{ matrix.dotnet-version }}
+              uses: actions/setup-dotnet@v5
+              with:
+                dotnet-version: ${{ matrix.dotnet-version }}
+
+            - name: Download and setup Dalamud
+              run: |
+                DALAMUD_VERSION="${{ matrix.dalamud-version }}"
+                echo "Downloading Dalamud ${DALAMUD_VERSION:+main}..."
+                wget -q https://goatcorp.github.io/dalamud-distrib/${DALAMUD_VERSION}/latest.zip -O dalamud.zip
+                unzip -q dalamud.zip -d .dalamud
+                echo "DALAMUD_HOME=$PWD/.dalamud/" >> $GITHUB_ENV
+
+            - name: Install dependencies
+              run: dotnet restore --locked-mode
+
+            - name: Determine version
+              id: version-info
+              run: |
+                VERSION=`gh release list --exclude-drafts --exclude-pre-releases -L 1 --json tagName --jq .[0].tagName`
+                DALAMUD_VERSION="${{ matrix.dalamud-version }}"
+                echo "version=${VERSION:-0.1}${DALAMUD_VERSION:+-$DALAMUD_VERSION}+${{ github.sha }}" >> $GITHUB_OUTPUT
+
+            - name: Add version info
+              run: |
+                echo '[assembly: System.Reflection.AssemblyInformationalVersion("${{ steps.version-info.outputs.version }}")]' > src/AssemblyInfo.cs
+
+            - name: Build
+              run: dotnet build --configuration $BUILD_CONFIG --no-restore
+
+            - name: Test
+              run: dotnet test --no-build --logger "$LOGGER"
+
+            - name: Publish
+              run: dotnet publish --no-build --configuration $BUILD_CONFIG src/magpie.csproj
+
+            - name: Attach to release
+              run: |
+                gh release create "${{ steps.version-info.outputs.version }}" --latest=false -p --target ${{ github.sha }} -t "Commit ${{ github.sha }}" --generate-notes "src/bin/$BUILD_CONFIG/magpie/latest.zip#latest.zip"
+              shell: bash

@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Dalamud.NET.Sdk/13.1.0">
+    <PropertyGroup>
+        <TargetFramework>net9.0-windows7.0</TargetFramework>
+        <Version>0.1</Version>
+        <Description>A gathering plugin</Description>
+        <PackageProjectUrl>https://github.com/lord2800/magpie</PackageProjectUrl>
+        <PackageLicenseExpression>PROPRIETARY</PackageLicenseExpression>
+        <IsPackable>false</IsPackable>
+        <RootNamespace>Magpie</RootNamespace>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <NoWarn>$(NoWarn);CA1416</NoWarn>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="ECommons" Version="3.0.1.29" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
+        <PackageReference Include="Pictomancy" Version="0.0.1" />
+        <PackageReference Include="Roslynator.Analyzers" Version="4.14.0">
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="System.IO.Abstractions" Version="22.0.16" />
+        <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="22.0.16" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <CompilerVisibleProperty Include="RootNamespace" />
+        <CompilerVisibleProperty Include="ProjectDir" />
+    </ItemGroup>
+</Project>
