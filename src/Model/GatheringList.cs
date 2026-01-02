@@ -44,7 +44,7 @@ public sealed record GatheringListItem
     public required uint ItemId;
     public required uint Quantity { get; set; }
     public required uint Collected { get; set; }
-    public static implicit operator string(GatheringListItem item) => $"${item.Type} ${item.ItemId}";
+    public static implicit operator string(GatheringListItem item) => $"{item.Type} {item.ItemId}";
 }
 
 public sealed class GatheringList(

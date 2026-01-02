@@ -55,7 +55,7 @@ public sealed class FileSystemStorage(IFileSystem fileSystem, FileSystemStorageO
         return files.Length switch {
             0 => null,
             1 => files[0],
-            _ => throw new($"Too many list files found that match ${listName}"),
+            _ => throw new($"Too many list files found that match {listName}"),
         };
     }
 
