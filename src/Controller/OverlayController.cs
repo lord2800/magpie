@@ -37,27 +37,23 @@ public class OverlayController(
 
     public void Toggle(bool state) => ToggleWindow?.Invoke(state);
 
-#pragma warning disable RCS1016
     public float GetPercentComplete()
     {
-        return 0.735f;
+        uint total = 0, collected = 0;
+        foreach (var item in currentList.Gatherables) {
+            total += item.Amount;
+            collected += item.Collected;
+        }
+        return collected / total;
     }
 
-    public string GetCurrentItem()
-    {
-        return "Rhodium Ore";
-    }
+    public string GetCurrentItem() => orchestrator.CurrentItem.Ingredient.Name;
 
-    public uint GetCurrentItemCount()
-    {
-        return 2;
-    }
+    public uint GetCurrentItemCollected() => orchestrator.CurrentItem.Collected;
 
-    public uint GetCurrentItemQuantity()
-    {
-        return 25;
-    }
+    public uint GetCurrentItemAmount() => orchestrator.CurrentItem.Amount;
 
+#pragma warning disable RCS1016 // none of these are wireable yet, they are not implemented
     public void Start()
     {
         // TODO
