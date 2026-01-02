@@ -28,7 +28,11 @@ public interface IGlobalSettingsController
 }
 
 [Autowire(typeof(IGlobalSettingsController))]
-public class GlobalSettingsController(IGlobalSettings settings, IActivePluginState activePlugins, IGatheringData abilities) : IGlobalSettingsController
+public class GlobalSettingsController(
+    IGlobalSettings settings,
+    IActivePluginState activePlugins,
+    IGatheringData abilities
+) : IGlobalSettingsController
 {
     public IEnumerable<string> RequiredPlugins { get => activePlugins.RequiredPlugins; }
     public bool IsPluginActive(string plugin) => activePlugins.ActivePlugins.Contains(plugin);

@@ -314,6 +314,7 @@ public class ListEditorControllerTest
             gathering.Object,
             repository.Object
         );
+        controller.Initialize();
 
         var called = false;
         controller.NameUpdated += (_) => called = true;

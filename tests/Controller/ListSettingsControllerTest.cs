@@ -238,6 +238,7 @@ public class ListSettingsControllerTest
             currentList,
             gathering.Object
         );
+        controller.Initialize();
 
         var triggered = false;
         controller.NameUpdated += _ => triggered = true;

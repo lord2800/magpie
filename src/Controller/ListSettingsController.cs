@@ -23,20 +23,13 @@ public interface IListSettingsController
 }
 
 [Autowire(typeof(IListSettingsController))]
-public class ListSettingsController : IListSettingsController
+public class ListSettingsController(
+    CurrentList list,
+    IGatheringData gathering
+) : IListSettingsController
 {
-    private readonly CurrentList list;
-    private readonly IGatheringData gathering;
-
-    public ListSettingsController(
-        CurrentList list,
-        IGatheringData gathering
-    )
-    {
-        this.list = list;
-        this.gathering = gathering;
-        this.list.NameUpdated += () => NameUpdated?.Invoke(list.Name);
-    }
+    [Initializer]
+    public void Initialize() => list.NameUpdated += () => NameUpdated?.Invoke(list.Name);
 
     public event Action<string>? NameUpdated = null;
     public event Action? OpenWindow = null;

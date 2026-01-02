@@ -5,6 +5,15 @@
         <DalamudPackager ProjectDir="$(ProjectDir)"
             OutputPath="$(OutputPath)"
             AssemblyName="$(AssemblyName)"
-            MakeZip="true" />
+            MakeZip="true"
+            Name="Magpie"
+            Author="lord2800"
+            Description="It gathers your shinies"
+            Punchline="A gathering plugin"
+            MinimumDalamudVersion="14.0.0"
+            Tags="gathering"
+            CanUnloadAsync="true"
+            IconUrl="https://raw.githubusercontent.com/lord2800/magpie/refs/heads/main/icon.png"
+        />
     </Target>
 </Project>

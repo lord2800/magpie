@@ -28,6 +28,19 @@ public class FileSystemStorageTests
     }
 
     [TestMethod]
+    public void DoesNotCreateDestinationDirectoryIfExistsOnInitialize()
+    {
+        var directoryName = Path.Combine(ListPath, "lists");
+        var fileSystem = new MockFileSystem();
+        fileSystem.AddDirectory(directoryName);
+        var serializer = new Mock<JsonSerializer>();
+        var fileSystemStorage = new FileSystemStorage(fileSystem, new FileSystemStorageOptions(directoryName), serializer.Object);
+        fileSystemStorage.Initialize();
+
+        Assert.IsTrue(fileSystem.Directory.Exists(Path.Combine(ListPath, "lists")));
+    }
+
+    [TestMethod]
     [DataRow(null)]
     [DataRow("")]
     [DataRow("   ")]

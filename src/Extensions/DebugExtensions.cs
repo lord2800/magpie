@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Magpie.Extensions;
 
+[ExcludeFromCodeCoverage]
 public static class DebugExtensions
 {
 #pragma warning disable RCS1175

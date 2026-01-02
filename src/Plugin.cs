@@ -1,6 +1,5 @@
 ﻿namespace Magpie;
 
-using Dalamud.Game.ClientState.Objects;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
@@ -37,7 +36,11 @@ public sealed class Plugin : IDalamudPlugin
         IObjectTable objectTable,
         ITargetManager targetManager,
         IGameInventory gameInventory,
-        IDataManager dataManager
+        IDataManager dataManager,
+        IGameInventory inventory,
+#pragma warning disable Dalamud001
+        IUnlockState unlockState
+#pragma warning restore Dalamud001
     )
     {
         StaticLogger = logger;
@@ -52,7 +55,9 @@ public sealed class Plugin : IDalamudPlugin
             objectTable,
             targetManager,
             gameInventory,
-            dataManager
+            dataManager,
+            inventory,
+            unlockState
         );
 
         logger.Info("Initializing window system");
@@ -96,7 +101,11 @@ public sealed class Plugin : IDalamudPlugin
         IObjectTable objectTable,
         ITargetManager targetManager,
         IGameInventory gameInventory,
-        IDataManager dataManager
+        IDataManager dataManager,
+        IGameInventory inventory,
+#pragma warning disable Dalamud001
+        IUnlockState unlockState
+#pragma warning restore Dalamud001
     )
     {
         var collection = new ServiceCollection();
@@ -104,24 +113,28 @@ public sealed class Plugin : IDalamudPlugin
         #region Dalamud services
         logger.Verbose("Registering Dalamud services");
         collection
-            .AddSingleton(typeof(IPluginLog), logger)
-            .AddSingleton(typeof(IDalamudPluginInterface), pluginInterface)
-            .AddSingleton(typeof(IClientState), clientState)
-            .AddSingleton(typeof(IFramework), framework)
-            .AddSingleton(typeof(IObjectTable), objectTable)
-            .AddSingleton(typeof(ITargetManager), targetManager)
-            .AddSingleton(typeof(IGameInventory), gameInventory)
-            .AddSingleton(typeof(IDataManager), dataManager)
-            .AddSingleton(new WindowSystem(Name))
+            .AddSingleton(logger)
+            .AddSingleton(pluginInterface)
+            .AddSingleton(clientState)
+            .AddSingleton(framework)
+            .AddSingleton(objectTable)
+            .AddSingleton(targetManager)
+            .AddSingleton(gameInventory)
+            .AddSingleton(dataManager)
+            .AddSingleton(inventory)
+            .AddSingleton(unlockState)
         ;
         #endregion
 
         #region Stuff not autowireable
-        logger.Verbose("Registering database components");
+        logger.Verbose("Registering non-autowired components");
         collection
-            .AddSingleton(new FileSystemStorageOptions(Path.Join(pluginInterface.GetPluginConfigDirectory(), "lists")))
+            .AddSingleton(_ => new FileSystemStorageOptions(
+                Path.Join(_.Get<IDalamudPluginInterface>().GetPluginConfigDirectory(), "lists"))
+            )
             .AddSingleton<IFileSystem, FileSystem>()
             .AddSingleton(JsonSerializer.CreateDefault())
+            .AddSingleton(new WindowSystem(Name))
         ;
         #endregion
 

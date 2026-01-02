@@ -5,7 +5,7 @@ using static ECommons.ImGuiMethods.ImGuiEx;
 using System;
 using System.Collections.Generic;
 
-internal static class IEnumerableExtensions
+public static class IEnumerableExtensions
 {
     public static IEnumerable<EzTableEntry> ToEzTableEntries<T>(
         this IEnumerable<T> entries,
@@ -13,6 +13,10 @@ internal static class IEnumerableExtensions
         params Action<T>[] renderers
     )
     {
+        if (columns.Length != renderers.Length) {
+            throw new ArgumentException("The number of columns must match the number of renderers!");
+        }
+
         var results = new List<EzTableEntry>();
         foreach (var entry in entries) {
             for (var i = 0; i < columns.Length; i++) {

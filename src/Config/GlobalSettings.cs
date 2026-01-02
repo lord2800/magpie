@@ -22,17 +22,15 @@ public interface IGlobalSettings : IDisposable
 [Autowire(typeof(IGlobalSettings))]
 public sealed class GlobalSettings : IGlobalSettings
 {
-    private bool showOverlay = false;
-
     public bool EnableAutoretainer { get; set; } = false;
     public bool AutoRetainerMultiMode { get; set; } = false;
     public bool RepairAtNpc { get; set; } = false;
     public bool ShowOverlay
     {
-        get => showOverlay;
+        get;
         set {
-            showOverlay = value;
-            OverlayStateChanged?.Invoke(showOverlay);
+            field = value;
+            OverlayStateChanged?.Invoke(value);
         }
     }
 

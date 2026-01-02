@@ -39,7 +39,7 @@ public sealed class GatheringListTests
     [TestMethod]
     public void AddsNewItems()
     {
-        var itemToAdd = new GatheringListItem() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 10, Collected = 5, };
+        var itemToAdd = GatheringListItemFactory.New();
         var gatheringList = new GatheringList("TestList", [], []);
 
         gatheringList.Add(itemToAdd);
@@ -52,7 +52,7 @@ public sealed class GatheringListTests
     [TestMethod]
     public void UpdatesExistingItemQuantity()
     {
-        var itemToAdd = new GatheringListItem() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 10, Collected = 5, };
+        var itemToAdd = GatheringListItemFactory.New(quantity: 10);
         var gatheringList = new GatheringList("TestList", [], [itemToAdd,]);
 
         gatheringList.Add(itemToAdd);
@@ -65,8 +65,8 @@ public sealed class GatheringListTests
     [TestMethod]
     public void RemovesExistingItems()
     {
-        var gatheringList = new GatheringList("TestList", [], [new() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 10, Collected = 5, },]);
-        var itemToRemove = new GatheringListItem() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 10, Collected = 5, };
+        var itemToRemove = GatheringListItemFactory.New();
+        var gatheringList = new GatheringList("TestList", [], [itemToRemove,]);
 
         gatheringList.Remove(itemToRemove);
 
@@ -76,8 +76,8 @@ public sealed class GatheringListTests
     [TestMethod]
     public void IgnoresNonexistentItems()
     {
-        var itemToRemove = new GatheringListItem() { Type = GatheringItemType.Product, ItemId = 2, Quantity = 10, Collected = 5, };
-        var gatheringList = new GatheringList("TestList", [], [new() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 10, Collected = 5, },]);
+        var itemToRemove = GatheringListItemFactory.New(1);
+        var gatheringList = new GatheringList("TestList", [], [GatheringListItemFactory.New(2),]);
 
         gatheringList.Remove(itemToRemove);
 
@@ -88,8 +88,8 @@ public sealed class GatheringListTests
     [TestMethod]
     public void ReducesQuantityWhenListContainsMore()
     {
-        var itemToRemove = new GatheringListItem() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 7, Collected = 5, };
-        var gatheringList = new GatheringList("TestList", [], [new() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 10, Collected = 5, },]);
+        var itemToRemove = GatheringListItemFactory.New(itemId: 1, quantity: 2);
+        var gatheringList = new GatheringList("TestList", [], [GatheringListItemFactory.New(itemId: 1, quantity: 5),]);
 
         gatheringList.Remove(itemToRemove);
 
@@ -100,8 +100,9 @@ public sealed class GatheringListTests
     [TestMethod]
     public void UpdatesCollectedCountWhenCollecting()
     {
-        var gatheringList = new GatheringList("TestList", [], [new() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 10, Collected = 5, },]);
-        var itemToCollect = new GatheringListItem() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 10, Collected = 5, };
+        var item = GatheringListItemFactory.New(itemId: 1, collected: 5);
+        var gatheringList = new GatheringList("TestList", [], [item,]);
+        var itemToCollect = GatheringListItemFactory.New(itemId: 1, quantity: 1);
 
         gatheringList.Collect(itemToCollect, 2);
 
@@ -110,10 +111,11 @@ public sealed class GatheringListTests
 
 
     [TestMethod]
-    public void IgnoresMissingItemsWhenCollecting()
+    public void IgnoresNotFoundItemsWhenCollecting()
     {
-        var gatheringList = new GatheringList("TestList", [], [new() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 10, Collected = 5, },]);
-        var itemToCollect = new GatheringListItem() { Type = GatheringItemType.Product, ItemId = 2, Quantity = 10, Collected = 5, };
+        var item = GatheringListItemFactory.New(itemId: 1, collected: 5);
+        var gatheringList = new GatheringList("TestList", [], [item,]);
+        var itemToCollect = GatheringListItemFactory.New(itemId: 2, quantity: 1);
 
         gatheringList.Collect(itemToCollect, 2);
 
@@ -123,7 +125,7 @@ public sealed class GatheringListTests
     [TestMethod]
     public void ResetsCollectedCountForAllItems()
     {
-        var gatheringList = new GatheringList("TestList", [], [new() { Type = GatheringItemType.Product, ItemId = 1, Quantity = 10, Collected = 5, },]);
+        var gatheringList = new GatheringList("TestList", [], [GatheringListItemFactory.New(collected: 5),]);
 
         Assert.AreEqual(5u, gatheringList.Items.First().Collected);
 

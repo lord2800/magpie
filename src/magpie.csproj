@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Dalamud.NET.Sdk/13.1.0">
+<Project Sdk="Dalamud.NET.Sdk/14.0.1">
     <PropertyGroup>
-        <TargetFramework>net9.0-windows7.0</TargetFramework>
+        <TargetFramework>net10.0-windows7.0</TargetFramework>
         <Version>0.1</Version>
         <Description>A gathering plugin</Description>
         <PackageProjectUrl>https://github.com/lord2800/magpie</PackageProjectUrl>
@@ -19,7 +19,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="ECommons" Version="3.0.1.29" />
+        <PackageReference Include="ECommons" Version="3.1.0.2" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
         <PackageReference Include="Pictomancy" Version="0.0.1" />
         <PackageReference Include="Roslynator.Analyzers" Version="4.14.0">

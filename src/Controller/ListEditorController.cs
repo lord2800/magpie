@@ -23,32 +23,19 @@ public interface IListEditorController
 }
 
 [Autowire(typeof(IListEditorController))]
-public class ListEditorController : IListEditorController
+public class ListEditorController(
+    IListSettingsController listSettings,
+    CurrentList list,
+    IRecipeData recipes,
+    IGatheringData gathering,
+    IListRepository repository
+) : IListEditorController
 {
-    private readonly IListSettingsController listSettings;
-    private readonly CurrentList list;
-    private readonly IRecipeData recipes;
-    private readonly IGatheringData gathering;
-    private readonly IListRepository repository;
 
-    public ListEditorController(
-        IListSettingsController listSettings,
-        CurrentList list,
-        IRecipeData recipes,
-        IGatheringData gathering,
-        IListRepository repository
-    )
-    {
-        this.listSettings = listSettings;
-        this.list = list;
-        this.recipes = recipes;
-        this.gathering = gathering;
-        this.repository = repository;
-        List = list;
-        list.NameUpdated += () => NameUpdated?.Invoke(List.Name);
-    }
+    [Initializer]
+    public void Initialize() => list.NameUpdated += () => NameUpdated?.Invoke(List.Name);
 
-    public IGatheringList List { get; }
+    public IGatheringList List { get; } = list;
 
     public IDictionary<uint, Recipe> Recipes { get => recipes.Recipes; }
     public IDictionary<uint, GatheringItem> GatheringItems { get => gathering.GatheringItems; }

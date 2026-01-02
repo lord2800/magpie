@@ -24,7 +24,14 @@ public record FileSystemStorageOptions(string directoryName);
 public sealed class FileSystemStorage(IFileSystem fileSystem, FileSystemStorageOptions options, JsonSerializer serializer) : IStorage
 {
     private readonly IDirectoryInfo directory = fileSystem.DirectoryInfo.New(options.directoryName);
-    private readonly EnumerationOptions enumerationOptions = new();
+    private readonly EnumerationOptions enumerationOptions = new() {
+        IgnoreInaccessible = true,
+        RecurseSubdirectories = false,
+        // TODO enable this
+        // MatchCasing = MatchCasing.CaseInsensitive,
+        MatchType = MatchType.Simple,
+        ReturnSpecialDirectories = false,
+    };
 
     [ExcludeFromCodeCoverage]
     public void Dispose()
@@ -35,14 +42,11 @@ public sealed class FileSystemStorage(IFileSystem fileSystem, FileSystemStorageO
     [Initializer]
     public void Initialize()
     {
-        if (!directory.Exists) {
-            directory.Create();
+        if (directory.Exists) {
+            return;
         }
-        enumerationOptions.IgnoreInaccessible = true;
-        enumerationOptions.RecurseSubdirectories = false;
-        enumerationOptions.MatchCasing = MatchCasing.CaseInsensitive;
-        enumerationOptions.MatchType = MatchType.Simple;
-        enumerationOptions.ReturnSpecialDirectories = false;
+
+        directory.Create();
     }
 
     private IFileInfo? GetListFile(string listName)
