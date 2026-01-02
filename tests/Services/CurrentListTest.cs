@@ -8,6 +8,7 @@ using MagpieTest.Factories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -34,7 +35,7 @@ public sealed class CurrentListTest
         var recipe = RecipeFactory.New();
         var recipes = new Dictionary<uint, Recipe>() {
             { 1, recipe },
-        };
+        }.ToFrozenDictionary();
         var recipeData = new Mock<IRecipeData>();
         recipeData.Setup(_ => _.Recipes).Returns(recipes);
         recipeData.Setup(_ => _.GetAllIngredients(recipe)).Returns(new List<Ingredient>());
@@ -168,10 +169,9 @@ public sealed class CurrentListTest
         var item = GatheringListItemFactory.New();
         var materials = new List<Ingredient>() { IngredientFactory.New(), };
 
-        var recipes = new Dictionary<uint, Recipe>()
-        {
+        var recipes = new Dictionary<uint, Recipe>() {
             { item.ItemId, recipe },
-        };
+        }.ToFrozenDictionary();
 
         var recipeData = new Mock<IRecipeData>();
         recipeData.Setup(x => x.Recipes).Returns(recipes);

@@ -8,6 +8,7 @@ using Magpie.Services;
 using MagpieTest.Factories;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 
 [TestClass]
@@ -62,7 +63,7 @@ public class ListEditorControllerTest
     {
         var recipeList = new Dictionary<uint, Recipe>() {
             {1, RecipeFactory.New(id: 1)},
-        };
+        }.ToFrozenDictionary();
         var recipe = new Mock<IRecipeData>();
         recipe.SetupGet(r => r.Recipes).Returns(recipeList);
         var gathering = new Mock<IGatheringData>();

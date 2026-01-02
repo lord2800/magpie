@@ -3,31 +3,23 @@ namespace Magpie.Services;
 using Magpie.Data;
 using Magpie.Model;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 public interface IListRepository
 {
     void DeleteList(string name);
     IGatheringList GetList(string name);
-    IEnumerable<string> GetLists(string filter);
+    ImmutableArray<string> GetLists(string filter);
     void SaveList(IGatheringList list);
 }
 
 [Autowire(typeof(IListRepository))]
-public class ListRepository : IListRepository
+public class ListRepository(IStorage storage, IGatheringData gathering) : IListRepository
 {
-    private readonly IStorage storage;
-    private readonly IGatheringData gathering;
-
-    public ListRepository(IStorage db, IGatheringData gathering)
-    {
-        this.storage = db;
-        this.gathering = gathering;
-    }
-
-    public IEnumerable<string> GetLists(string filter)
+    public ImmutableArray<string> GetLists(string filter)
         // GetFileNameWithoutExtension can return null if the input string is null, which will never be the case here
-        => storage.GetLists(filter).Select(System.IO.Path.GetFileNameWithoutExtension)!;
+        => [.. storage.GetLists(filter).Select(System.IO.Path.GetFileNameWithoutExtension)!, ];
 
     public IGatheringList GetList(string name) => ToGatheringList(storage.GetList(name));
     public void SaveList(IGatheringList list) => storage.SaveList(ToListRecord(list));

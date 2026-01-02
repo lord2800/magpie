@@ -5,13 +5,14 @@ using Magpie.Model;
 using Magpie.Services;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 public interface IListEditorController
 {
     IGatheringList List { get; }
     IDictionary<uint, Recipe> Recipes { get; }
     IDictionary<uint, GatheringItem> GatheringItems { get; }
-    IEnumerable<Ingredient> Gatherables { get; }
+    ImmutableArray<Gatherable> Gatherables { get; }
     event Action<string>? NameUpdated;
     event Action? OpenWindow;
 
@@ -39,7 +40,7 @@ public class ListEditorController(
 
     public IDictionary<uint, Recipe> Recipes { get => recipes.Recipes; }
     public IDictionary<uint, GatheringItem> GatheringItems { get => gathering.GatheringItems; }
-    public IEnumerable<Ingredient> Gatherables { get => list.Gatherables; }
+    public ImmutableArray<Gatherable> Gatherables { get => list.Gatherables; }
     public event Action<string>? NameUpdated = null;
     public event Action? OpenWindow = null;
 

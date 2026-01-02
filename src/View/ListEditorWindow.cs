@@ -84,7 +84,7 @@ public class ListEditorWindow : Window
                 ["Quantity", "Item",],
                 _ => ImGui.TextUnformatted(_.Amount.ToString()),
                 _ => {
-                    controller.GatheringItems.TryGetValue(_.TargetId, out var item);
+                    controller.GatheringItems.TryGetValue(_.Ingredient.TargetId, out var item);
                     ImGui.TextUnformatted(item?.Name ?? "<unknown>");
                 }
             );

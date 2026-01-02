@@ -8,26 +8,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Collections.Concurrent;
 using Lumina.Extensions;
+using System.Collections.Frozen;
 
 public interface IRecipeData
 {
-    public IDictionary<uint, Recipe> Recipes { get; }
+    public FrozenDictionary<uint, Recipe> Recipes { get; }
     public IEnumerable<Ingredient> GetAllIngredients(Recipe recipe);
 }
 
 [Autowire(typeof(IRecipeData))]
-public class RecipeData(IDataManager dataManager, IPluginLog logger) : IRecipeData
+public class RecipeData(
+    IReadOnlyCollection<RecipeSheet> recipeData,
+    IReadOnlyCollection<GatheringItemSheet> gatheringItemData,
+    IReadOnlyCollection<ItemSheet> itemData,
+    IPluginLog logger
+) : IRecipeData
 {
-    private readonly IDictionary<uint, Recipe> recipes =
-        (from recipe in dataManager.GetExcelSheet<RecipeSheet>()
+    private readonly FrozenDictionary<uint, Recipe> recipes =
+        (from recipe in recipeData
          where recipe.ItemResult.IsValid && recipe.AmountResult > 0
          select new Recipe(
              Id: recipe.RowId,
              Name: recipe.ItemResult.Value.Name.ExtractText(),
              Ingredients: BuildRecipeIngredients(recipe)
-        )).ToDictionary(x => x.Id);
+        )).ToDictionary(x => x.Id).ToFrozenDictionary();
 
-    private static List<RecipeIngredient> BuildRecipeIngredients(RecipeSheet recipe)
+    private static List<RecipeIngredient> BuildRecipeIngredients(in RecipeSheet recipe)
     {
         var results = new List<RecipeIngredient>();
 
@@ -51,7 +57,7 @@ public class RecipeData(IDataManager dataManager, IPluginLog logger) : IRecipeDa
 #pragma warning disable RCS1085
     // this must be like this in order to force the recipe data to be cached
     // while still being a correct interface implementation
-    public IDictionary<uint, Recipe> Recipes => recipes;
+    public FrozenDictionary<uint, Recipe> Recipes => recipes;
 #pragma warning restore RCS1085
 
     private readonly ConcurrentDictionary<uint, IEnumerable<Ingredient>> cache = [];
@@ -71,7 +77,7 @@ public class RecipeData(IDataManager dataManager, IPluginLog logger) : IRecipeDa
             ingredients.Remove(ingredient);
 
             logger.Verbose($"Examining ingredient {ingredient.Name} ({ingredient.Id})");
-            var gatherable = from _ in dataManager.GetExcelSheet<GatheringItemSheet>()
+            var gatherable = from _ in gatheringItemData
                              where _.Item.RowId == ingredient.Id && _.Unknown4
                              select _;
             var isGatherable = gatherable.Any();
@@ -97,11 +103,15 @@ public class RecipeData(IDataManager dataManager, IPluginLog logger) : IRecipeDa
 
     private IEnumerable<Ingredient> ExpandRecipeIngredient(RecipeIngredient ingredient)
     {
-        var item = (from _ in dataManager.GetExcelSheet<ItemSheet>() where _.RowId == ingredient.Id select _).FirstOrNull();
+        var item = (from _ in itemData
+            where _.RowId == ingredient.Id
+            select _).FirstOrNull();
         if (item is null) {
             return [];
         }
-        var recipeId = (from _ in dataManager.GetExcelSheet<RecipeSheet>() where _.ItemResult.RowId == item.Value.RowId select _.RowId).FirstOrNull();
+        var recipeId = (from _ in recipeData
+            where _.ItemResult.RowId == item.Value.RowId
+            select _.RowId).FirstOrNull();
         if (recipeId is null) {
             return [];
         }

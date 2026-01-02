@@ -8,6 +8,7 @@ using Magpie.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 [TestClass]
 public class MainControllerTests
@@ -76,7 +77,7 @@ public class MainControllerTests
         var currentList = new CurrentList(gathering.Object, recipe.Object, settings.Object) { List = list.Object, };
 
         const string mockFilter = "test";
-        var expectedLists = new List<string>() { "list1", "list2", };
+        var expectedLists = new List<string>() { "list1", "list2", }.ToImmutableArray();
 
         repository.Setup(x => x.GetLists(mockFilter)).Returns(expectedLists);
 

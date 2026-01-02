@@ -12,8 +12,8 @@ public interface IOverlayController
     event Action<bool>? ToggleWindow;
 
     string GetCurrentItem();
-    uint GetCurrentItemCount();
-    uint GetCurrentItemQuantity();
+    uint GetCurrentItemCollected();
+    uint GetCurrentItemAmount();
     float GetPercentComplete();
     void OpenListEditor();
     void Start();
@@ -22,18 +22,15 @@ public interface IOverlayController
 }
 
 [Autowire(typeof(IOverlayController))]
-public class OverlayController : IOverlayController
+public class OverlayController(
+    IListEditorController listEditor,
+    CurrentList currentList,
+    IGlobalSettings settings,
+    IOrchestrator orchestrator
+) : IOverlayController
 {
-    private readonly IListEditorController listEditor;
-    private readonly CurrentList currentList;
-
-    public OverlayController(IListEditorController listEditor, CurrentList currentList, IGlobalSettings settings)
-    {
-        this.listEditor = listEditor;
-        this.currentList = currentList;
-
-        settings.OverlayStateChanged += Toggle;
-    }
+    [Initializer]
+    public void Initialize() => settings.OverlayStateChanged += Toggle;
 
     public IGatheringList List { get => currentList.List; }
     public event Action<bool>? ToggleWindow;
@@ -63,10 +60,12 @@ public class OverlayController : IOverlayController
 
     public void Start()
     {
+        // TODO
     }
 
     public void Stop()
     {
+        // TODO
     }
 #pragma warning restore RCS1016
 

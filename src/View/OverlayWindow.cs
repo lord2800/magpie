@@ -33,8 +33,8 @@ public sealed class OverlayWindow : Window
         ImGui.TextUnformatted(strings.GetCurrentGatheringText(controller.List.Name, controller.GetPercentComplete()));
         ImGui.TextUnformatted(strings.GetCurrentItemText(
             controller.GetCurrentItem(),
-            controller.GetCurrentItemCount(),
-            controller.GetCurrentItemQuantity()
+            controller.GetCurrentItemCollected(),
+            controller.GetCurrentItemAmount()
         ));
 
         ImGui.Separator();

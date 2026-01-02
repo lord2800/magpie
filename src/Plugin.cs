@@ -126,6 +126,18 @@ public sealed class Plugin : IDalamudPlugin
         ;
         #endregion
 
+        #region Data tables
+        logger.Verbose("Registering data tables");
+        collection
+            .AddExcelTable<Lumina.Excel.Sheets.Action>(dataManager, logger)
+            .AddExcelTable<Lumina.Excel.Sheets.Trait>(dataManager, logger)
+            .AddExcelTable<Lumina.Excel.Sheets.ClassJob>(dataManager, logger)
+            .AddExcelTable<Lumina.Excel.Sheets.GatheringItem>(dataManager, logger)
+            .AddExcelTable<Lumina.Excel.Sheets.Recipe>(dataManager, logger)
+            .AddExcelTable<Lumina.Excel.Sheets.Item>(dataManager, logger)
+        ;
+        #endregion
+
         #region Stuff not autowireable
         logger.Verbose("Registering non-autowired components");
         collection

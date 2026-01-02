@@ -5,6 +5,7 @@ using Magpie.Data;
 using Magpie.Model;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 [Autowire]
@@ -25,32 +26,42 @@ public class CurrentList(IGatheringData gathering, IRecipeData recipe, IGlobalSe
     public IEnumerable<GatheringListItem> Items { get => List.Items; }
     public bool IsSaveable { get => !string.IsNullOrEmpty(Name) && List.Items.Any(); }
 
-    public IEnumerable<Ingredient> Gatherables
+    private Dictionary<uint, Gatherable>? gatherables = null;
+
+    public ImmutableArray<Gatherable> Gatherables
     {
         get {
-            var results = new Dictionary<uint, Ingredient>();
+            if (gatherables is not null) {
+                return [.. gatherables.Values, ];
+            }
+
+            gatherables = [];
+
             foreach (var item in Items) {
                 if (item.Type == GatheringItemType.Gathered) {
                     var ingredient = ConvertItemToIngredient(item);
-                    if (results.TryGetValue(ingredient.TargetId, out var result)) {
-                        results[ingredient.TargetId] = result with { Amount = result.Amount + ingredient.Amount };
+                    if (gatherables.TryGetValue(ingredient.TargetId, out var result)) {
+                        gatherables[ingredient.TargetId] = result with { Amount = result.Amount + ingredient.Amount };
                     }
                     else {
-                        results.Add(ingredient.TargetId, ingredient);
+                        gatherables.Add(ingredient.TargetId, new Gatherable(ingredient, ingredient.Amount, 0));
                     }
                 }
+
                 else if (item.Type == GatheringItemType.Product) {
                     foreach (var ingredient in recipe.GetAllIngredients(recipe.Recipes[item.ItemId])) {
-                        if (results.TryGetValue(ingredient.TargetId, out var result)) {
-                            results[ingredient.TargetId] = result with { Amount = result.Amount + item.Quantity };
+                        if (gatherables.TryGetValue(ingredient.TargetId, out var result)) {
+                            gatherables[ingredient.TargetId] = result with { Amount = result.Amount + item.Quantity };
                         }
                         else {
-                            results.Add(ingredient.TargetId, ingredient with { Amount = ingredient.Amount * item.Quantity });
+                            var newIngredient = ingredient with { Amount = ingredient.Amount * item.Quantity };
+                            gatherables.Add(ingredient.TargetId, new Gatherable(newIngredient, newIngredient.Amount, 0));
                         }
                     }
                 }
             }
-            return results.Values;
+
+            return [.. gatherables.Values, ];
         }
     }
     private Ingredient ConvertItemToIngredient(GatheringListItem item)
@@ -73,3 +84,5 @@ public class CurrentList(IGatheringData gathering, IRecipeData recipe, IGlobalSe
     public void Reset() => List.Reset();
     public void ToggleAbility(GatheringAbility ability, bool? toggle) => List.ToggleAbility(ability, toggle);
 }
+
+public record Gatherable(Ingredient Ingredient, uint Amount, uint Collected);
